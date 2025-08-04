@@ -42,7 +42,7 @@ jobs:
       - name: Tag app image for GHCR
         run: |
           REPO_OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker tag xo-game_app ghcr.io/$REPO_OWNER_LC/xo-game-app:latest
+          docker tag xo-game_app:latest ghcr.io/$REPO_OWNER_LC/xo-game-app:latest
 
       - name: Push app image to GHCR
         run: |
