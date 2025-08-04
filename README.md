@@ -1,4 +1,135 @@
-# XO Game - Tic Tac Toe with PostgreSQL
+# XO Game – Step-by-Step Docker Compose Tutorial
+
+## Overview
+
+This project is a single-player Tic-Tac-Toe (XO) game built with Node.js and PostgreSQL. You’ll learn how to run it using Docker Compose, which sets up both the app and its database in isolated containers.
+
+---
+
+## What You Need
+
+- [Docker](https://docs.docker.com/get-docker/) installed
+- [Docker Compose](https://docs.docker.com/compose/install/) (usually included with Docker Desktop)
+
+---
+
+## Step 1: Clone the Repository
+
+```bash
+git clone <your-repo-url>
+cd XO-Game
+```
+
+---
+
+## Step 2: Understand the Containers and Images
+
+This app uses **two containers** defined in `docker-compose.yml`:
+
+1. **xo-game-app**
+   - **Image:** Built from the included `Dockerfile` (uses `node:18-alpine` as the base image)
+   - **Runs:** The Node.js Express backend and serves the frontend
+
+2. **xo-game-db**
+   - **Image:** `postgres:15-alpine` (official PostgreSQL image)
+   - **Runs:** The PostgreSQL database
+
+---
+
+## Step 3: What’s the Difference? Dockerfile vs docker-compose.yml
+
+- **Dockerfile:**  
+  Describes how to build a single image (for the app).  
+  Example: It says “start from Node.js, copy my code, install dependencies, set up the app.”
+
+- **docker-compose.yml:**  
+  Describes how to run multiple containers together.  
+  Example: It says “run my app container AND a database container, connect them, set environment variables, map ports, etc.”
+
+**In short:**  
+- Use a **Dockerfile** to build an image for one service.  
+- Use **docker-compose.yml** to run and connect multiple containers as a complete stack.
+
+---
+
+## Step 4: Build and Start the App
+
+From your project directory, run:
+
+```bash
+docker-compose up --build -d
+```
+
+- `--build` ensures the app image is rebuilt with your latest code.
+- `-d` runs everything in the background.
+
+---
+
+## Step 5: Access the App
+
+- Open your browser and go to: [http://localhost:4000](http://localhost:4000)
+
+You’ll see the XO Game interface. Play a game, and results/stats will appear at the bottom.
+
+---
+
+## Step 6: Stopping and Restarting
+
+- **Stop everything:**  
+  ```bash
+  docker-compose down
+  ```
+- **Restart everything:**  
+  ```bash
+  docker-compose up -d
+  ```
+
+---
+
+## Step 7: How It Works
+
+- The **app container** runs your Node.js code and talks to the database.
+- The **db container** stores all game results in PostgreSQL.
+- Docker Compose makes sure both containers are started and connected on a private network.
+
+---
+
+## Step 8: Customizing
+
+- To change the app port, edit the `ports` section in `docker-compose.yml`.
+- To reset the database, you can remove the volume in Docker Compose (be careful, this deletes all data):
+
+  ```bash
+  docker-compose down -v
+  ```
+
+---
+
+## Troubleshooting
+
+- If you see a port error, make sure nothing else is running on port 4000.
+- To see logs:
+  ```bash
+  docker-compose logs app
+  docker-compose logs db
+  ```
+
+---
+
+## Summary Table
+
+| Container Name | Image Used         | Purpose                | Exposed Port |
+| -------------- | ----------------- | ---------------------- | ------------ |
+| xo-game-app    | Built from Dockerfile (node:18-alpine) | Node.js/Express app | 4000         |
+| xo-game-db     | postgres:15-alpine | PostgreSQL database    | 5432         |
+
+---
+
+## That’s It!
+
+You now have a fully containerized XO Game app running with Docker Compose.  
+If you want to add features or change the stack, just edit the code and re-run `docker-compose up --build`.
+
 
 A single-player Tic-Tac-Toe game built with Node.js and PostgreSQL, featuring game result persistence and comprehensive statistics tracking.
 

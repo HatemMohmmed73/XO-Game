@@ -103,11 +103,13 @@ function handleCellClick(event) {
     winner = currentPlayer;
     showGameOver();
     saveGameResult(winner, moves, board, Date.now() - gameStartTime);
+    loadGameStats();
   } else if (board.every(cell => cell !== '')) {
     gameOver = true;
     winner = 'draw';
     showGameOver();
     saveGameResult(winner, moves, board, Date.now() - gameStartTime);
+    loadGameStats();
   } else {
     currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
   }
