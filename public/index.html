@@ -11,13 +11,12 @@
     <div class="container">
         <header>
             <h1>XO Game</h1>
-            <p class="subtitle">Tic Tac Toe - Real-time Multiplayer</p>
+            <p class="subtitle">Tic Tac Toe - Single Player Mode</p>
         </header>
 
         <div class="game-container">
             <div class="game-info">
-                <div class="status" id="status">Waiting for players...</div>
-                <div class="player-count" id="playerCount">Players: 0/2</div>
+                <div class="status" id="status">Current player: X</div>
             </div>
 
             <div class="board" id="board">
@@ -34,7 +33,6 @@
 
             <div class="controls">
                 <button id="resetBtn" class="btn btn-primary">New Game</button>
-                <button id="shareBtn" class="btn btn-secondary">Share Game</button>
             </div>
 
             <div class="game-over" id="gameOver" style="display: none;">
@@ -45,18 +43,34 @@
             </div>
         </div>
 
-        <div class="instructions">
-            <h3>How to Play</h3>
-            <ul>
-                <li>Share the game link with a friend</li>
-                <li>Take turns placing X and O on the board</li>
-                <li>Get three in a row to win!</li>
-                <li>Click "New Game" to start  </li>
-            </ul>
+        <div class="results-section">
+            <h3>Game Results</h3>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Total Games:</span>
+                    <span class="stat-value" id="totalGames">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">X Wins:</span>
+                    <span class="stat-value" id="xWins">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">O Wins:</span>
+                    <span class="stat-value" id="oWins">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Draws:</span>
+                    <span class="stat-value" id="draws">0</span>
+                </div>
+            </div>
+            <div class="recent-games" id="recentGames">
+                <h4>Recent Games</h4>
+                <div id="gamesList"></div>
+            </div>
         </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>
-</html> 
+</html>

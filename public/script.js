@@ -1,32 +1,38 @@
-/* global document, window, navigator, alert, io */
-// Connect to Socket.IO server
-const socket = io();
-
+/* global document, window */
 // DOM elements
 const cells = document.querySelectorAll('.cell');
 const status = document.getElementById('status');
-const playerCount = document.getElementById('playerCount');
 const resetBtn = document.getElementById('resetBtn');
-const shareBtn = document.getElementById('shareBtn');
 const gameOverElement = document.getElementById('gameOver');
 const winnerText = document.getElementById('winnerText');
 const playAgainBtn = document.getElementById('playAgainBtn');
 
 // Game state
-let gameId = generateGameId();
+let board = Array(9).fill('');
 let currentPlayer = 'X';
 let gameOver = false;
 let winner = null;
+let moves = [];
+let gameStartTime = Date.now();
 
-// Generate a random game ID
-function generateGameId() {
-  return Math.random().toString(36).substring(2, 8);
+// Initialize the game
+function initGame() {
+  board = Array(9).fill('');
+  currentPlayer = 'X';
+  gameOver = false;
+  winner = null;
+  moves = [];
+  gameStartTime = Date.now();
+  
+  updateBoard();
+  updateStatus();
+  hideGameOver();
 }
 
 // Update the game board display
-function updateBoard(boardState) {
+function updateBoard() {
   cells.forEach((cell, index) => {
-    const value = boardState[index];
+    const value = board[index];
     cell.textContent = value;
     cell.className = 'cell';
     if (value) {
@@ -48,58 +54,72 @@ function updateStatus() {
   }
 }
 
-// Show game over overlay
-function showGameOver() {
-  if (winner === 'draw') {
-    winnerText.textContent = 'It\'s a draw!';
-  } else {
-    winnerText.textContent = `Player ${winner} wins!`;
-  }
-  gameOverElement.style.display = 'flex';
-}
-
 // Hide game over overlay
 function hideGameOver() {
   gameOverElement.style.display = 'none';
+  winnerText.textContent = '';
+}
+
+// Show game over overlay
+function showGameOver() {
+  winnerText.textContent = status.textContent;
+  gameOverElement.style.display = 'flex';
+}
+
+// Check for winner
+function checkWinner() {
+  const winConditions = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+    [0, 4, 8], [2, 4, 6] // diagonals
+  ];
+
+  return winConditions.some(condition => {
+    const [a, b, c] = condition;
+    return board[a] && board[a] === board[b] && board[a] === board[c];
+  });
 }
 
 // Handle cell clicks
 function handleCellClick(event) {
-  if (gameOver) return;
-    
   const cell = event.target;
   const index = parseInt(cell.dataset.index);
-    
-  if (cell.textContent === '') {
-    socket.emit('makeMove', index);
+
+  if (gameOver || board[index] !== '') {
+    return;
   }
+
+  // Make the move
+  board[index] = currentPlayer;
+  moves.push({
+    player: currentPlayer,
+    position: index,
+    timestamp: Date.now()
+  });
+  
+  // Check for winner
+  if (checkWinner()) {
+    gameOver = true;
+    winner = currentPlayer;
+    showGameOver();
+    saveGameResult(winner, moves, board, Date.now() - gameStartTime);
+  } else if (board.every(cell => cell !== '')) {
+    gameOver = true;
+    winner = 'draw';
+    showGameOver();
+    saveGameResult(winner, moves, board, Date.now() - gameStartTime);
+  } else {
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+  }
+
+  updateBoard();
+  updateStatus();
 }
 
-// Share game functionality
-function shareGame() {
-  const gameUrl = `${window.location.origin}?game=${gameId}`;
-    
-  if (navigator.share) {
-    navigator.share({
-      title: 'XO Game',
-      text: 'Join me for a game of XO!',
-      url: gameUrl
-    });
-  } else {
-    // Fallback: copy to clipboard
-    navigator.clipboard.writeText(gameUrl).then(() => {
-      alert('Game link copied to clipboard!');
-    }).catch(() => {
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = gameUrl;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      alert('Game link copied to clipboard!');
-    });
-  }
+// Reset game
+function resetGame() {
+  initGame();
+  moves = [];
 }
 
 // Event listeners
@@ -107,54 +127,122 @@ cells.forEach(cell => {
   cell.addEventListener('click', handleCellClick);
 });
 
-resetBtn.addEventListener('click', () => {
-  socket.emit('resetGame');
-  hideGameOver();
-});
-
-shareBtn.addEventListener('click', shareGame);
+resetBtn.addEventListener('click', resetGame);
 
 playAgainBtn.addEventListener('click', () => {
-  socket.emit('resetGame');
   hideGameOver();
+  resetGame();
 });
 
-// Socket.IO event handlers
-socket.on('connect', () => {
-  console.log('Connected to server');
-  socket.emit('joinGame', gameId);
-});
+// Save game result to database
+async function saveGameResult(winner, moves, finalBoard, duration) {
+  try {
+    const response = await fetch('/api/games', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        winner,
+        moves,
+        finalBoard,
+        duration
+      })
+    });
 
-socket.on('gameState', (data) => {
-  updateBoard(data.board);
-  currentPlayer = data.currentPlayer;
-  gameOver = data.gameOver;
-  winner = data.winner;
-    
-  updateStatus();
-  playerCount.textContent = `Players: ${data.players}/2`;
-    
-  if (gameOver) {
-    showGameOver();
-  } else {
-    hideGameOver();
+    if (!response.ok) {
+      throw new Error('Failed to save game result');
+    }
+
+    const savedGame = await response.json();
+    console.log('Game saved:', savedGame);
+    return savedGame;
+  } catch (error) {
+    console.error('Error saving game:', error);
   }
-});
+}
 
-socket.on('gameFull', () => {
-  status.textContent = 'Game is full!';
-  alert('This game is full. Please create a new game or join a different one.');
-});
+// Load game statistics
+async function loadGameStats() {
+  try {
+    const response = await fetch('/api/stats');
+    const stats = await response.json();
+    console.log('Game statistics:', stats);
+    return stats;
+  } catch (error) {
+    console.error('Error loading stats:', error);
+    return null;
+  }
+}
 
-socket.on('disconnect', () => {
-  status.textContent = 'Disconnected from server';
-});
+// Initialize game on load
+initGame();
+
+// Load stats on page load
+loadGameStats();
+
+// Display game results
+function displayGameResults(stats) {
+    if (!stats) return;
+
+    document.getElementById('totalGames').textContent = stats.totalGames || 0;
+    document.getElementById('xWins').textContent = stats.xWins || 0;
+    document.getElementById('oWins').textContent = stats.oWins || 0;
+    document.getElementById('draws').textContent = stats.draws || 0;
+}
+
+// Display recent games
+function displayRecentGames(games) {
+    const gamesList = document.getElementById('gamesList');
+    if (!gamesList || !games) return;
+
+    gamesList.innerHTML = '';
+    
+    if (games.length === 0) {
+        gamesList.innerHTML = '<p>No games played yet</p>';
+        return;
+    }
+
+    games.slice(0, 5).forEach(game => {
+        const gameItem = document.createElement('div');
+        gameItem.className = `game-item winner-${game.winner}`;
+        
+        const date = new Date(game.createdAt).toLocaleDateString();
+        const winnerText = game.winner === 'draw' ? 'Draw' : `${game.winner} Wins`;
+        
+        gameItem.innerHTML = `
+            <span>${date} - ${winnerText}</span>
+            <span>${game.moves.length} moves</span>
+        `;
+        
+        gamesList.appendChild(gameItem);
+    });
+}
+
+// Enhanced loadGameStats to display results
+async function loadGameStats() {
+    try {
+        const [statsResponse, gamesResponse] = await Promise.all([
+            fetch('/api/stats'),
+            fetch('/api/games')
+        ]);
+
+        const stats = await statsResponse.json();
+        const games = await gamesResponse.json();
+
+        displayGameResults(stats);
+        displayRecentGames(games);
+
+    } catch (error) {
+        console.error('Error loading game data:', error);
+    }
+}
 
 // Check for game ID in URL parameters
 const urlParams = new URLSearchParams(window.location.search);
 const urlGameId = urlParams.get('game');
 if (urlGameId) {
-  gameId = urlGameId;
+  // Do nothing
 }
 
 // Initialize game

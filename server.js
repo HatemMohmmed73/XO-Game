@@ -1,151 +1,106 @@
 const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
 const path = require('path');
+const sequelize = require('./config/database');
+const Game = require('./models/Game')(sequelize);
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Game state
-const games = new Map();
+// API Routes
 
-// Game logic
-class XOGame {
-  constructor() {
-    this.board = Array(9).fill('');
-    this.currentPlayer = 'X';
-    this.gameOver = false;
-    this.winner = null;
-    this.players = [];
-  }
-
-  makeMove(position) {
-    if (this.gameOver || this.board[position] !== '') {
-      return false;
-    }
-
-    this.board[position] = this.currentPlayer;
-    
-    if (this.checkWinner()) {
-      this.gameOver = true;
-      this.winner = this.currentPlayer;
-    } else if (this.board.every(cell => cell !== '')) {
-      this.gameOver = true;
-      this.winner = 'draw';
-    } else {
-      this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
-    }
-
-    return true;
-  }
-
-  checkWinner() {
-    const winConditions = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
-      [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
-      [0, 4, 8], [2, 4, 6] // diagonals
-    ];
-
-    return winConditions.some(condition => {
-      const [a, b, c] = condition;
-      return this.board[a] && this.board[a] === this.board[b] && this.board[a] === this.board[c];
+// Get all games
+app.get('/api/games', async (req, res) => {
+  try {
+    const games = await Game.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 50
     });
+    res.json(games);
+  } catch (error) {
+    console.error('Error fetching games:', error);
+    res.status(500).json({ error: 'Failed to fetch games' });
   }
+});
 
-  reset() {
-    this.board = Array(9).fill('');
-    this.currentPlayer = 'X';
-    this.gameOver = false;
-    this.winner = null;
-  }
-}
-
-// Socket.IO connection handling
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-
-  socket.on('joinGame', (gameId) => {
-    let game = games.get(gameId);
+// Save a new game result
+app.post('/api/games', async (req, res) => {
+  try {
+    const { winner, moves, finalBoard, duration } = req.body;
     
-    if (!game) {
-      game = new XOGame();
-      games.set(gameId, game);
+    if (!winner || !moves || !finalBoard) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    if (game.players.length < 2) {
-      game.players.push(socket.id);
-      socket.join(gameId);
-      socket.gameId = gameId;
-      
-      io.to(gameId).emit('gameState', {
-        board: game.board,
-        currentPlayer: game.currentPlayer,
-        gameOver: game.gameOver,
-        winner: game.winner,
-        players: game.players.length
-      });
-    } else {
-      socket.emit('gameFull');
-    }
-  });
+    const game = await Game.create({
+      winner,
+      moves,
+      finalBoard,
+      duration: duration || 0
+    });
 
-  socket.on('makeMove', (position) => {
-    const game = games.get(socket.gameId);
-    if (game && game.makeMove(position)) {
-      io.to(socket.gameId).emit('gameState', {
-        board: game.board,
-        currentPlayer: game.currentPlayer,
-        gameOver: game.gameOver,
-        winner: game.winner,
-        players: game.players.length
-      });
-    }
-  });
+    res.status(201).json(game);
+  } catch (error) {
+    console.error('Error saving game:', error);
+    res.status(500).json({ error: 'Failed to save game' });
+  }
+});
 
-  socket.on('resetGame', () => {
-    const game = games.get(socket.gameId);
-    if (game) {
-      game.reset();
-      io.to(socket.gameId).emit('gameState', {
-        board: game.board,
-        currentPlayer: game.currentPlayer,
-        gameOver: game.gameOver,
-        winner: game.winner,
-        players: game.players.length
-      });
-    }
-  });
+// Get game statistics
+app.get('/api/stats', async (req, res) => {
+  try {
+    const totalGames = await Game.count();
+    const xWins = await Game.count({ where: { winner: 'X' } });
+    const oWins = await Game.count({ where: { winner: 'O' } });
+    const draws = await Game.count({ where: { winner: 'draw' } });
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-    if (socket.gameId) {
-      const game = games.get(socket.gameId);
-      if (game) {
-        game.players = game.players.filter(id => id !== socket.id);
-        if (game.players.length === 0) {
-          games.delete(socket.gameId);
-        }
-      }
-    }
-  });
+    res.json({
+      totalGames,
+      xWins,
+      oWins,
+      draws,
+      xWinRate: totalGames > 0 ? Math.round((xWins / totalGames) * 100) : 0,
+      oWinRate: totalGames > 0 ? Math.round((oWins / totalGames) * 100) : 0,
+      drawRate: totalGames > 0 ? Math.round((draws / totalGames) * 100) : 0
+    });
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    res.status(500).json({ error: 'Failed to fetch statistics' });
+  }
 });
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ status: 'OK', message: 'Server is running' });
 });
 
-const PORT = process.env.PORT || 3000;
-
-// Only start the server if this is the main module (not being imported for testing)
-if (require.main === module) {
-  server.listen(PORT, () => {
-    console.log(`XO Game server running on port ${PORT}`);
-  });
+// Database initialization
+async function initializeDatabase() {
+  try {
+    await sequelize.authenticate();
+    console.log('Database connection established successfully.');
+    
+    await sequelize.sync({ alter: true });
+    console.log('Database synchronized successfully.');
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
 }
 
-module.exports = { app, server, io, XOGame }; 
+const PORT = process.env.PORT || 8080;
+
+// Initialize database and start server
+initializeDatabase().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Database: ${process.env.DB_NAME || 'xo_game'}`);
+    console.log(`Health check: http://localhost:${PORT}/health`);
+  });
+});
+
+module.exports = { app, sequelize, Game }; 

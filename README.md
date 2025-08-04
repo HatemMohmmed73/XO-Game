@@ -1,33 +1,180 @@
-# Al-Mallah - Oman Tourism & Cultural Platform
+# XO Game - Tic Tac Toe with PostgreSQL
 
-A comprehensive tourism and cultural platform for Oman, showcasing the country's rich heritage, attractions, and culinary experiences.
+A single-player Tic-Tac-Toe game built with Node.js and PostgreSQL, featuring game result persistence and comprehensive statistics tracking.
 
 ## Features
 
-- 🏞️ Discover tourist attractions and places
-- 🍽️ Explore restaurants and cafes
-- 🥾 Find hiking trails
-- 👨‍🍳 Traditional Omani recipes
-- ✨ User-generated content submission
-- 🏆 Profile system with gamification
+- ✅ Single-player Tic-Tac-Toe game
+- ✅ PostgreSQL database integration
+- ✅ Game result persistence
+- ✅ Comprehensive statistics tracking
+- ✅ Docker containerization
+- ✅ RESTful API endpoints
+- ✅ Responsive web design
 
 ## Tech Stack
 
-- Frontend: React 19.1.0
-- Styling: Tailwind CSS 4.1.11
-- Progressive Web App (PWA) enabled
-- Responsive design for all devices
+- **Backend**: Node.js, Express.js
+- **Database**: PostgreSQL with Sequelize ORM
+- **Frontend**: Vanilla JavaScript, CSS3, HTML5
+- **Containerization**: Docker & Docker Compose
+- **Testing**: Jest with Supertest
 
-## Design System
+## Quick Start
 
-- Primary Color: Mountain Green (#3B6B4E)
-- Typography: "The Year of Handicrafts" font for headings
-- Component-based architecture
-- Modern, accessible UI components
+### Option 1: Docker (Recommended)
 
----
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd xo-game
+   ```
 
-## CI/CD Pipeline Setup Guide
+2. **Start with Docker Compose**:
+   ```bash
+   docker-compose up --build
+   ```
+
+3. **Access the application**:
+   - Game: http://localhost:4000
+
+### Option 2: Local Development
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Set up PostgreSQL**:
+   ```bash
+   # Install PostgreSQL
+   # Create database: xo_game
+   # Create user: postgres with password postgres
+   ```
+
+3. **Configure environment**:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database credentials
+   ```
+
+4. **Start the application**:
+   ```bash
+   npm start
+   ```
+
+## API Endpoints
+
+### Games
+- `GET /api/games` - Get all game results
+- `POST /api/games` - Save a new game result
+- `GET /api/stats` - Get game statistics
+
+### Health
+- `GET /health` - Health check endpoint
+
+### Static Files
+- `GET /` - Main game interface
+- `GET /*` - Static assets
+
+## Database Schema
+
+### Games Table
+```sql
+CREATE TABLE games (
+  id SERIAL PRIMARY KEY,
+  winner VARCHAR(10) NOT NULL CHECK (winner IN ('X', 'O', 'draw')),
+  moves JSON NOT NULL,
+  final_board JSON NOT NULL,
+  duration INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | Server port | 8080 |
+| `DB_HOST` | Database host | localhost |
+| `DB_PORT` | Database port | 5432 |
+| `DB_NAME` | Database name | xo_game |
+| `DB_USER` | Database user | postgres |
+| `DB_PASSWORD` | Database password | postgres |
+
+## Docker Commands
+
+### Development
+```bash
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+
+# Rebuild and restart
+docker-compose up --build
+```
+
+### Production
+```bash
+# Build production image
+docker build -t xo-game .
+
+# Run with environment variables
+docker run -p 8080:8080 \
+  -e DB_HOST=your-db-host \
+  -e DB_PASSWORD=your-password \
+  xo-game
+```
+
+## Development
+
+### Running Tests
+```bash
+npm test
+```
+
+### Database Reset
+```bash
+# Reset database (development)
+npm run db:reset
+```
+
+## File Structure
+
+```
+xo-game/
+├── config/
+│   └── database.js          # Database configuration
+├── models/
+│   └── Game.js             # Game model (Sequelize)
+├── public/
+│   ├── index.html          # Main game interface
+│   ├── script.js          # Frontend JavaScript
+│   └── style.css          # Game styling
+├── .env.example           # Environment variables template
+├── docker-compose.yml     # Docker services configuration
+├── Dockerfile            # App container configuration
+├── server.js             # Express server
+└── package.json          # Dependencies and scripts
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new features
+5. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details
 
 This guide explains how to set up a complete CI/CD pipeline for a Node.js project using GitHub Actions and Render. It covers the three main stages (Build, Test, Deploy), how to configure deployment to Render using a deploy hook, and how to verify your deployment.
 
