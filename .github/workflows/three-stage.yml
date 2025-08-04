@@ -38,11 +38,13 @@ jobs:
 
       - name: Tag app image for GHCR
         run: |
-          docker tag xo-game_app ghcr.io/${{ github.repository_owner }}/xo-game-app:latest
+          REPO_OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          docker tag xo-game_app ghcr.io/$REPO_OWNER_LC/xo-game-app:latest
 
       - name: Push app image to GHCR
         run: |
-          docker push ghcr.io/${{ github.repository_owner }}/xo-game-app:latest
+          REPO_OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          docker push ghcr.io/$REPO_OWNER_LC/xo-game-app:latest
 
   test:
     name: Integration & Unit Tests
