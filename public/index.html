@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XO Game - Tic Tac Toe</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>XO Game</h1>
+            <p class="subtitle">Tic Tac Toe - Real-time Multiplayer</p>
+        </header>
+
+        <div class="game-container">
+            <div class="game-info">
+                <div class="status" id="status">Waiting for players...</div>
+                <div class="player-count" id="playerCount">Players: 0/2</div>
+            </div>
+
+            <div class="board" id="board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+
+            <div class="controls">
+                <button id="resetBtn" class="btn btn-primary">New Game</button>
+                <button id="shareBtn" class="btn btn-secondary">Share Game</button>
+            </div>
+
+            <div class="game-over" id="gameOver" style="display: none;">
+                <div class="game-over-content">
+                    <h2 id="winnerText"></h2>
+                    <button id="playAgainBtn" class="btn btn-primary">Play Again</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Play</h3>
+            <ul>
+                <li>Share the game link with a friend</li>
+                <li>Take turns placing X and O on the board</li>
+                <li>Get three in a row to win!</li>
+                <li>Click "New Game" to start  </li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
