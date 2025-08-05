@@ -1,509 +1,289 @@
-# XO Game – Step-by-Step Docker Compose Tutorial
 
-## Overview
 
-This project is a single-player Tic-Tac-Toe (XO) game built with Node.js and PostgreSQL. You’ll learn how to run it using Docker Compose, which sets up both the app and its database in isolated containers.
 
----
+# 🚀 Complete Node.js + PostgreSQL CI/CD Tutorial with Docker Compose
 
-## What You Need
+Deploy any Node.js app with PostgreSQL using Docker Compose and GitHub Actions in minutes.
 
-- [Docker](https://docs.docker.com/get-docker/) installed
-- [Docker Compose](https://docs.docker.com/compose/install/) (usually included with Docker Desktop)
+This guide works with **any Node.js app** that uses PostgreSQL.  
+You can also use my example repository:  
+🔗 [XO-Game Example Repo](https://github.com/HatemMohmmed73/XO-Game)
 
----
 
-## Step 1: Clone the Repository
 
-```bash
-git clone <your-repo-url>
-cd XO-Game
-```
+## 🎯 What You’ll Build
 
----
+- ✅ Universal setup – works with Express, NestJS, Fastify, etc.  
+- ✅ PostgreSQL + Node.js with Docker Compose – run full stack locally in one command  
+- ✅ GitHub Actions CI/CD – automated building, testing, and pushing to GitHub Container Registry (GHCR)  
+- ✅ Portable containers – run anywhere with Docker  
+- ✅ Ready for production – environment variables & health checks included
 
-## Step 2: Understand the Containers and Images
 
-This app uses **two containers** defined in `docker-compose.yml`:
+## 📋 Prerequisites (2 minutes setup)
 
-1. **xo-game-app**
-   - **Image:** Built from the included `Dockerfile` (uses `node:18-alpine` as the base image)
-   - **Runs:** The Node.js Express backend and serves the frontend
-
-2. **xo-game-db**
-   - **Image:** `postgres:15-alpine` (official PostgreSQL image)
-   - **Runs:** The PostgreSQL database
-
----
-
-## Step 3: What’s the Difference? Dockerfile vs docker-compose.yml
-
-- **Dockerfile:**  
-  Describes how to build a single image (for the app).  
-  Example: It says “start from Node.js, copy my code, install dependencies, set up the app.”
-
-- **docker-compose.yml:**  
-  Describes how to run multiple containers together.  
-  Example: It says “run my app container AND a database container, connect them, set environment variables, map ports, etc.”
-
-**In short:**  
-- Use a **Dockerfile** to build an image for one service.  
-- Use **docker-compose.yml** to run and connect multiple containers as a complete stack.
-
----
-
-## Step 4: Build and Start the App
-
-From your project directory, run:
-
-```bash
-docker-compose up --build -d
-```
-
-- `--build` ensures the app image is rebuilt with your latest code.
-- `-d` runs everything in the background.
-
----
-
-## Step 5: Access the App
-
-- Open your browser and go to: [http://localhost:4000](http://localhost:4000)
-
-You’ll see the XO Game interface. Play a game, and results/stats will appear at the bottom.
-
----
-
-## Step 6: Stopping and Restarting
-
-- **Stop everything:**  
+- A **GitHub repository** (free)  
+- **Docker** & **Docker Compose** installed locally  
+- (Optional) Use my example repo:  
   ```bash
-  docker-compose down
-  ```
-- **Restart everything:**  
-  ```bash
-  docker-compose up -d
-  ```
+  git clone https://github.com/HatemMohmmed73/XO-Game.git
+  cd XO-Game
 
----
-
-## Step 7: How It Works
-
-- The **app container** runs your Node.js code and talks to the database.
-- The **db container** stores all game results in PostgreSQL.
-- Docker Compose makes sure both containers are started and connected on a private network.
-
----
-
-## Step 8: Customizing
-
-- To change the app port, edit the `ports` section in `docker-compose.yml`.
-- To reset the database, you can remove the volume in Docker Compose (be careful, this deletes all data):
-
-  ```bash
-  docker-compose down -v
-  ```
-
----
-
-## Troubleshooting
-
-- If you see a port error, make sure nothing else is running on port 4000.
-- To see logs:
-  ```bash
-  docker-compose logs app
-  docker-compose logs db
-  ```
-
----
-
-## Summary Table
-
-| Container Name | Image Used         | Purpose                | Exposed Port |
-| -------------- | ----------------- | ---------------------- | ------------ |
-| xo-game-app    | Built from Dockerfile (node:18-alpine) | Node.js/Express app | 4000         |
-| xo-game-db     | postgres:15-alpine | PostgreSQL database    | 5432         |
-
----
-
-## That’s It!
-
-You now have a fully containerized XO Game app running with Docker Compose.  
-If you want to add features or change the stack, just edit the code and re-run `docker-compose up --build`.
-
-
-A single-player Tic-Tac-Toe game built with Node.js and PostgreSQL, featuring game result persistence and comprehensive statistics tracking.
-
-## Features
-
-- ✅ Single-player Tic-Tac-Toe game
-- ✅ PostgreSQL database integration
-- ✅ Game result persistence
-- ✅ Comprehensive statistics tracking
-- ✅ Docker containerization
-- ✅ RESTful API endpoints
-- ✅ Responsive web design
-
-## Tech Stack
-
-- **Backend**: Node.js, Express.js
-- **Database**: PostgreSQL with Sequelize ORM
-- **Frontend**: Vanilla JavaScript, CSS3, HTML5
-- **Containerization**: Docker & Docker Compose
-- **Testing**: Jest with Supertest
-
-## Quick Start
-
-### Option 1: Docker (Recommended)
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd xo-game
-   ```
-
-2. **Start with Docker Compose**:
-   ```bash
-   docker-compose up --build
-   ```
-
-3. **Access the application**:
-   - Game: http://localhost:4000
-
-### Option 2: Local Development
-
-1. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-2. **Set up PostgreSQL**:
-   ```bash
-   # Install PostgreSQL
-   # Create database: xo_game
-   # Create user: postgres with password postgres
-   ```
-
-3. **Configure environment**:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database credentials
-   ```
-
-4. **Start the application**:
-   ```bash
-   npm start
-   ```
-
-## API Endpoints
-
-### Games
-- `GET /api/games` - Get all game results
-- `POST /api/games` - Save a new game result
-- `GET /api/stats` - Get game statistics
-
-### Health
-- `GET /health` - Health check endpoint
-
-### Static Files
-- `GET /` - Main game interface
-- `GET /*` - Static assets
-
-## Database Schema
-
-### Games Table
-```sql
-CREATE TABLE games (
-  id SERIAL PRIMARY KEY,
-  winner VARCHAR(10) NOT NULL CHECK (winner IN ('X', 'O', 'draw')),
-  moves JSON NOT NULL,
-  final_board JSON NOT NULL,
-  duration INTEGER NOT NULL DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-## Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Server port | 8080 |
-| `DB_HOST` | Database host | localhost |
-| `DB_PORT` | Database port | 5432 |
-| `DB_NAME` | Database name | xo_game |
-| `DB_USER` | Database user | postgres |
-| `DB_PASSWORD` | Database password | postgres |
-
-## Docker Commands
-
-### Development
-```bash
-# Start services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-
-# Rebuild and restart
-docker-compose up --build
-```
-
-### Production
-```bash
-# Build production image
-docker build -t xo-game .
-
-# Run with environment variables
-docker run -p 8080:8080 \
-  -e DB_HOST=your-db-host \
-  -e DB_PASSWORD=your-password \
-  xo-game
-```
-
-## Development
-
-### Running Tests
-```bash
-npm test
-```
-
-### Database Reset
-```bash
-# Reset database (development)
-npm run db:reset
-```
-
-## File Structure
+## 🏗 Project Structure
 
 ```
-xo-game/
-├── config/
-│   └── database.js          # Database configuration
-├── models/
-│   └── Game.js             # Game model (Sequelize)
-├── public/
-│   ├── index.html          # Main game interface
-│   ├── script.js          # Frontend JavaScript
-│   └── style.css          # Game styling
-├── .env.example           # Environment variables template
-├── docker-compose.yml     # Docker services configuration
-├── Dockerfile            # App container configuration
-├── server.js             # Express server
-└── package.json          # Dependencies and scripts
+├── .github/workflows/
+│   └── ci-cd.yml          # 🚀 Your CI/CD pipeline
+├── docker-compose.yml     # 🐳 Services definition
+├── Dockerfile             # 🐳 Node.js container
+├── package.json           # 📦 Dependencies & scripts
+└── README.md              # 📖 Project info
 ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new features
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details
-
-This guide explains how to set up a complete CI/CD pipeline for a Node.js project using GitHub Actions and Render. It covers the three main stages (Build, Test, Deploy), how to configure deployment to Render using a deploy hook, and how to verify your deployment.
-
 ---
 
-## 1. Pipeline Overview
+## 🚀 Complete Deployment Guide
 
-The pipeline consists of **three stages**:
-
-1. **Build Stage**: Installs dependencies and prepares the application for deployment.
-2. **Test Stage**: Runs automated tests and health checks to ensure code quality.
-3. **Deploy Stage**: Triggers a deployment to Render using a secure deploy hook.
-
----
-
-## 2. Prerequisites
-
-- A GitHub repository for your Node.js project
-- A [Render](https://render.com/) account
-- Your app set up as a Render Web Service (Node.js)
-
----
-
-## 3. Step-by-Step CI/CD Setup
-
-### Step 1: Create a Render Web Service
-1. Log in to [Render](https://render.com/)
-2. Click **New +** → **Web Service**
-3. Connect your GitHub repo and select your project
-4. Set the build command: `npm install`
-5. Set the start command: `npm start`
-6. Complete the setup and deploy your service
-
-### Step 2: Get Render Deploy Hook
-1. In your Render service dashboard, go to **Settings**
-2. Scroll to **Deploy Hooks**
-3. Copy ** Deploy Hook**
-
-### Step 3: Add the Deploy Hook to GitHub Secrets
-1. Go to your GitHub repo → **Settings** → **Secrets and variables** → **Actions**
-2. Click **New repository secret**
-3. Name: `RENDER_DEPLOY_HOOK`
-4. Value: (Paste your Render deploy hook URL)
-5. Click **Add secret**
-
-### Step 4: Add the CI/CD Workflow File
-1. In your repo, create `.github/workflows/three-stage.yml` with the following structure:
+### Step 1: Create `docker-compose.yml`
 
 ```yaml
-name: 3-Stage CI/CD Pipeline
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: xo-game-db
+    environment:
+      POSTGRES_DB: xo_game
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - xo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Node.js Application
+  app:
+    build: .
+    container_name: xo-game-app
+    ports:
+      - "4000:8080"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=xo_game
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - xo-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  xo-network:
+    driver: bridge
+```
+
+---
+
+### Step 2: Create `Dockerfile`
+
+```dockerfile
+# Use official Node.js runtime as base image
+FROM node:18-alpine
+
+# Install curl for health check
+RUN apk add --no-cache curl
+
+# Set working directory in container
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev for build)
+RUN npm ci
+
+# Copy application code
+COPY . .
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
+
+# Change ownership of the app directory
+RUN chown -R nodejs:nodejs /app
+USER nodejs
+
+# Expose port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
+
+# Start the application
+CMD ["npm", "start"]
+```
+
+---
+
+### Step 3: Create GitHub Actions Workflow `.github/workflows/ci-cd.yml`
+
+```yaml
+name: Node.js CI/CD with Docker Compose
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [ "main" ]
 
 jobs:
-  build:
-    name: Build Stage
+  build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Build application
-        run: |
-          mkdir -p dist
-          cp -r public dist/
-          cp server.js dist/
-          cp package.json dist/
-          cp package-lock.json dist/
-          cd dist && npm ci --only=production
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: dist/
-          retention-days: 7
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Install Docker Compose
+      run: |
+        sudo curl -L "https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+        docker-compose --version
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build Docker images with Compose
+      run: docker-compose build
+
+    - name: Find and push built image
+      run: |
+        REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+        REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2 | tr '[:upper:]' '[:lower:]')
+        IMAGE_ID=$(docker images --format "{{.ID}}" | head -n 1)
+        TARGET_IMAGE="ghcr.io/$REPO_OWNER/$REPO_NAME:latest"
+        docker tag "$IMAGE_ID" "$TARGET_IMAGE"
+        docker push "$TARGET_IMAGE"
 
   test:
-    name: Test Stage
+    needs: build-and-push
     runs-on: ubuntu-latest
-    needs: build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Run linting (optional)
-        run: npm run lint || echo "Linting failed but continuing..."
-        continue-on-error: true
-      - name: Run unit tests
-        run: npm test -- --verbose --detectOpenHandles
-      - name: Test server health (with retry)
-        run: |
-          npm start &
-          SERVER_PID=$!
-          for i in {1..30}; do
-            if curl -f http://localhost:3000/health > /dev/null 2>&1; then
-              echo "Server is ready!"
-              break
-            fi
-            sleep 2
-          done
-          curl -f http://localhost:3000/health
-          kill $SERVER_PID || true
-          wait $SERVER_PID 2>/dev/null || true
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: dist/
-      - name: Test built application
-        run: |
-          cd dist
-          npm start &
-          SERVER_PID=$!
-          for i in {1..30}; do
-            if curl -f http://localhost:3000/health > /dev/null 2>&1; then
-              echo "Built server is ready!"
-              break
-            fi
-            sleep 2
-          done
-          curl -f http://localhost:3000/health
-          kill $SERVER_PID || true
-          wait $SERVER_PID 2>/dev/null || true
+    - uses: actions/checkout@v4
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+        cache: 'npm'
+    - name: Install dependencies
+      run: npm ci
+    - name: Run tests
+      run: npm test
 
   deploy:
-    name: Deploy to Render
+    needs: [build-and-push, test]
     runs-on: ubuntu-latest
-    needs: test
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Trigger Render Deploy Hook
-        run: |
-          curl -X POST "$RENDER_DEPLOY_HOOK"
-        env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
-      - name: Notify deployment success
-        run: |
-          echo "🚀 Successfully triggered Render deployment!"
-          echo "Application is live at: https://your-app.onrender.com/"
+    - name: Deploy to production
+      run: echo "Deployment commands go here"
 ```
 
 ---
 
-## 4. How to Check Deployment Status
+### Step 4: Run Locally with Docker Compose
 
-### A. On GitHub Actions
-- Go to your repo → **Actions** tab
-- Click on the latest workflow run
-- Ensure all three stages (Build, Test, Deploy) are green
+```bash
+docker-compose up --build
+```
 
-### B. On Render
-- Go to your Render dashboard
-- Open your service
-- Check the **Events** tab for deployment status
-- You should see a new deployment triggered by the deploy hook
+* Your app will be available at: `http://localhost:4000`
+* PostgreSQL listens on: `localhost:5432`
 
-### C. Using the Deploy Hook
-- The deploy step in your workflow triggers the deploy hook via `curl`
-- You can also manually trigger a deployment by running:
+---
+
+### Step 5: Push and Trigger CI/CD
+
+```bash
+git add .
+git commit -m "Add Docker Compose and CI/CD workflow"
+git push origin main
+```
+
+* GitHub Actions will **build**, **push** the Docker images to GHCR, and run tests automatically.
+* Add real deployment commands in the `deploy` job if needed.
+
+---
+
+## 🧪 Local Development & Testing
+
+* Start services:
+
   ```bash
-  curl -X POST "<your-render-deploy-hook-url>"
+  docker-compose up
   ```
-- This will start a new deployment on Render
+
+* Stop services:
+
+  ```bash
+  docker-compose down
+  ```
+
+* Rebuild images:
+
+  ```bash
+  docker-compose up --build
+  ```
 
 ---
 
-## 5. Troubleshooting
+## 🔧 Troubleshooting Guide
 
-- **Malformed input to a URL function**: Check that your `RENDER_DEPLOY_HOOK` secret is set correctly and contains the full URL.
-- **Deployment not triggered**: Make sure the deploy hook is correct and your workflow references the secret properly.
-- **Build or test failures**: Check the logs in the Actions tab for details.
-
----
-
-## 6. Summary
-
-- Set up your Render service and deploy hook
-- Add the deploy hook as a GitHub secret
-- Use the provided workflow for a 3-stage CI/CD pipeline
-- Every push to `main` will build, test, and deploy your app to Render automatically
+| Issue                   | Solution                                                               |
+| ----------------------- | ---------------------------------------------------------------------- |
+| DB connection fails     | Check your `DB_HOST` and environment variables in `docker-compose.yml` |
+| Port conflicts          | Change ports in `docker-compose.yml` to avoid conflicts                |
+| Docker image push fails | Ensure GitHub token (`GITHUB_TOKEN`) has `packages: write` permissions |
+| Health check fails      | Make sure your app exposes `/health` endpoint as configured            |
 
 ---
 
-For more details, see [Render Deploy Hooks Documentation](https://render.com/docs/deploy-hooks).
+## 🎯 Deployment Checklist
+
+* ✅ Added `docker-compose.yml`
+* ✅ Created `Dockerfile`
+* ✅ Added GitHub Actions workflow `.github/workflows/ci-cd.yml`
+* ✅ Configured environment variables correctly
+* ✅ GitHub Actions workflows run successfully
+* ✅ Your app responds correctly on `http://localhost:4000/health`
+
+---
+
+# Enjoy your automated Docker Compose CI/CD setup! 🎉
+
+Feel free to open issues or PRs on [XO-Game repo](https://github.com/HatemMohmmed73/XO-Game) for improvements.
+
