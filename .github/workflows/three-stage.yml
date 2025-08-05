@@ -36,7 +36,7 @@ jobs:
       - name: Build Docker images with Compose
         run: docker-compose build
 
-      - name: List Docker images
+      - name: List Docker images to verify built image name
         run: docker images
 
       - name: Tag app image for GHCR
