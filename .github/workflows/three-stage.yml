@@ -41,11 +41,23 @@ jobs:
 
       - name: Tag app image for GHCR
         run: |
+          # Extract service name from docker-compose.yml
+          SERVICE_NAME=$(grep -A 5 'services:' docker-compose.yml | grep -v 'services:' | grep -v 'postgres:' | grep -v '#' | head -n 1 | tr -d '[:space:]' | tr -d ':')
+          # Determine project name (directory name, lowercased, hyphens to underscores)
+          PROJECT_NAME=$(basename $(pwd) | tr '[:upper:]' '[:lower:]' | tr '-' '_')
+          # Construct image name
+          IMAGE_NAME=${PROJECT_NAME}_${SERVICE_NAME}
           REPO_OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker tag xo_game_app:latest ghcr.io/$REPO_OWNER_LC/xo-game-app:latest
+          docker tag ${IMAGE_NAME}:latest ghcr.io/$REPO_OWNER_LC/xo-game-app:latest
 
       - name: Push app image to GHCR
         run: |
+          # Extract service name from docker-compose.yml
+          SERVICE_NAME=$(grep -A 5 'services:' docker-compose.yml | grep -v 'services:' | grep -v 'postgres:' | grep -v '#' | head -n 1 | tr -d '[:space:]' | tr -d ':')
+          # Determine project name (directory name, lowercased, hyphens to underscores)
+          PROJECT_NAME=$(basename $(pwd) | tr '[:upper:]' '[:lower:]' | tr '-' '_')
+          # Construct image name
+          IMAGE_NAME=${PROJECT_NAME}_${SERVICE_NAME}
           REPO_OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           docker push ghcr.io/$REPO_OWNER_LC/xo-game-app:latest
 
