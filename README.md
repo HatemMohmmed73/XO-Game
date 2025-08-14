@@ -218,7 +218,7 @@ jobs:
 ### Step 4: Run Locally with Docker Compose
 
 ```bash
-docker-compose up --build
+docker-compose up -d
 ```
 
 * Your app will be available at: `http://localhost:4000`
