@@ -244,7 +244,7 @@ git push origin main
 * Start services:
 
   ```bash
-  docker-compose up
+  docker-compose up -d
   ```
 
 * Stop services:
