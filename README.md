@@ -56,6 +56,7 @@ A high-performance, scalable XO (Tic-Tac-Toe) game built with Node.js, deployed 
 ### 1. Clone and Deploy
 
 ```bash
+<<<<<<< HEAD
 # Clone the repository
 git clone https://github.com/yourusername/xo-game.git
 cd xo-game
@@ -65,6 +66,9 @@ cd xo-game
 
 # Or use Terraform
 ./deploy-all.sh terraform
+=======
+docker-compose up -d
+>>>>>>> 891f9323808c0a11bcd845df51611248657de4ba
 ```
 
 ### 2. Access Your Application
@@ -272,6 +276,56 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+<<<<<<< HEAD
 **Built with ❤️ for high-performance, scalable applications**
+=======
+## 🧪 Local Development & Testing
+
+* Start services:
+
+  ```bash
+  docker-compose up -d
+  ```
+
+* Stop services:
+
+  ```bash
+  docker-compose down
+  ```
+
+* Rebuild images:
+
+  ```bash
+  docker-compose up --build
+  ```
+
+---
+
+## 🔧 Troubleshooting Guide
+
+| Issue                   | Solution                                                               |
+| ----------------------- | ---------------------------------------------------------------------- |
+| DB connection fails     | Check your `DB_HOST` and environment variables in `docker-compose.yml` |
+| Port conflicts          | Change ports in `docker-compose.yml` to avoid conflicts                |
+| Docker image push fails | Ensure GitHub token (`GITHUB_TOKEN`) has `packages: write` permissions |
+| Health check fails      | Make sure your app exposes `/health` endpoint as configured            |
+
+---
+
+## 🎯 Deployment Checklist
+
+* ✅ Added `docker-compose.yml`
+* ✅ Created `Dockerfile`
+* ✅ Added GitHub Actions workflow `.github/workflows/ci-cd.yml`
+* ✅ Configured environment variables correctly
+* ✅ GitHub Actions workflows run successfully
+* ✅ Your app responds correctly on `http://localhost:4000/health`
+
+---
+
+# Enjoy your automated Docker Compose CI/CD setup! 🎉
+
+Feel free to open issues or PRs on [XO-Game repo](https://github.com/HatemMohmmed73/XO-Game) for improvements.
+>>>>>>> 891f9323808c0a11bcd845df51611248657de4ba
 
 ⭐ **Star this repository if you find it helpful!**
