@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: xo-game-postgres-cluster-service
+  namespace: xo-game
+  labels:
+    app: xo-game
+    component: postgres-cluster
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+      name: postgres
+  selector:
+    app: xo-game
+    component: postgres-cluster
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800

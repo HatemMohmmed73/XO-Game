@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: xo-game-shared-storage
+  labels:
+    app: xo-game
+    storage: shared
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteMany  # Multiple nodes can read/write
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: shared-storage
+  hostPath:
+    path: /tmp/xo-game-shared
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: xo-game-shared-data
+  namespace: xo-game
+  labels:
+    app: xo-game
+    storage: shared
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: shared-storage
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: shared-storage
+  labels:
+    app: xo-game
+    storage: shared
+provisioner: k8s.io/host-path
+volumeBindingMode: Immediate
+allowVolumeExpansion: true

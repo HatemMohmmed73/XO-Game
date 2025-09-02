@@ -164,24 +164,12 @@ async function saveGameResult(winner, moves, finalBoard, duration) {
   }
 }
 
-// Load game statistics
-async function loadGameStats() {
-  try {
-    const response = await fetch('/api/stats');
-    const stats = await response.json();
-    console.log('Game statistics:', stats);
-    return stats;
-  } catch (error) {
-    console.error('Error loading stats:', error);
-    return null;
-  }
-}
+// (Removed old loadGameStats; see enhanced version below)
 
 // Initialize game on load
 initGame();
 
-// Load stats on page load
-loadGameStats();
+// (Initial call moved to after enhanced definition)
 
 // Display game results
 function displayGameResults(stats) {
@@ -240,12 +228,10 @@ async function loadGameStats() {
     }
 }
 
-// Check for game ID in URL parameters
+// Check for game ID in URL parameters (reserved for future use)
 const urlParams = new URLSearchParams(window.location.search);
 const urlGameId = urlParams.get('game');
-if (urlGameId) {
-  // Do nothing
-}
+// No-op for now
 
-// Initialize game
-socket.emit('joinGame', gameId); 
+// Ensure stats are loaded on page load (after definition)
+loadGameStats();

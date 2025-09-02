@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: xo-game-postgres-cluster
+  namespace: xo-game
+  labels:
+    app: xo-game
+    component: postgres-cluster
+spec:
+  serviceName: xo-game-postgres-cluster-service
+  replicas: 3  # Primary + 2 replicas for data redundancy
+  selector:
+    matchLabels:
+      app: xo-game
+      component: postgres-cluster
+  template:
+    metadata:
+      labels:
+        app: xo-game
+        component: postgres-cluster
+    spec:
+      containers:
+        - name: postgres-primary
+          image: postgres:15-alpine
+          env:
+            - name: POSTGRES_DB
+              value: xo_game
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_USER
+              value: postgres
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_INITDB_ARGS
+              value: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            - name: postgres-config
+              mountPath: /etc/postgresql/postgresql.conf
+              subPath: postgresql.conf
+          livenessProbe:
+            exec:
+              command:
+                - /usr/local/bin/pg_isready
+                - -U
+                - postgres
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - /usr/local/bin/pg_isready
+                - -U
+                - postgres
+            failureThreshold: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+      volumes:
+        - name: postgres-config
+          configMap:
+            name: postgres-config
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: "standard"
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: xo-game
+  labels:
+    app: xo-game
+    component: postgres-cluster
+data:
+  postgresql.conf: |
+    # Basic settings
+    listen_addresses = '*'
+    port = 5432
+    max_connections = 100
+    
+    # Memory settings
+    shared_buffers = 256MB
+    effective_cache_size = 1GB
+    maintenance_work_mem = 64MB
+    
+    # WAL settings for replication
+    wal_level = replica
+    max_wal_senders = 3
+    max_replication_slots = 3
+    
+    # Replication settings
+    hot_standby = on
+    hot_standby_feedback = on
+    
+    # Logging
+    log_statement = 'all'
+    log_destination = 'stderr'
+    logging_collector = on
+    log_directory = 'pg_log'
+    log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'

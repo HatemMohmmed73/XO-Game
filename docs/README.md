@@ -1,22 +1,16 @@
-# 🎮 XO Game - Production-Ready Kubernetes Application
+# XO Game - Complete Infrastructure Documentation
 
-[![CI/CD](https://github.com/yourusername/xo-game/workflows/Deploy%20XO%20Game%20to%20Kubernetes/badge.svg)](https://github.com/yourusername/xo-game/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-1.28+-blue.svg)](https://kubernetes.io/)
-[![Docker](https://img.shields.io/badge/Docker-20.10+-blue.svg)](https://www.docker.com/)
+## 🎯 Overview
 
-A high-performance, scalable XO (Tic-Tac-Toe) game built with Node.js, deployed on Kubernetes with complete infrastructure automation, monitoring, and CI/CD pipeline.
+This is a comprehensive, production-ready setup for the XO Game application with:
 
-## 🚀 Features
-
-- **🎯 High Performance**: Auto-scaling Kubernetes deployment (4-16 replicas)
-- **🗄️ High Availability**: Distributed PostgreSQL cluster with 3 nodes
-- **💾 Data Persistence**: Shared storage across all nodes
-- **📊 Complete Monitoring**: Prometheus + Grafana with custom dashboards
-- **🔄 CI/CD Pipeline**: Automated testing, security scanning, and deployment
-- **🧪 Advanced Load Testing**: Comprehensive testing suite with multiple scenarios
-- **🏗️ Infrastructure as Code**: Complete Terraform configuration
-- **🔒 Security**: Vulnerability scanning, non-root containers, resource limits
+- **Kubernetes orchestration** with auto-scaling
+- **Distributed PostgreSQL cluster** for high availability
+- **Shared storage** across all nodes
+- **Complete monitoring** with Prometheus and Grafana
+- **CI/CD pipeline** with GitHub Actions
+- **Advanced load testing** suite
+- **Infrastructure as Code** with Terraform
 
 ## 🏗️ Architecture
 
@@ -53,31 +47,20 @@ A high-performance, scalable XO (Tic-Tac-Toe) game built with Node.js, deployed 
 - **Docker** for building images
 - **Terraform** (optional, for IaC)
 
-### 1. Clone and Deploy
+### 1. Deploy with Scripts
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/xo-game.git
-cd xo-game
-
-# Deploy everything with one command
-./deploy-all.sh
+# Fast deployment (recommended)
+./k8s/fast-deploy.sh
 
 # Or use Terraform
-./deploy-all.sh terraform
+cd terraform
+terraform init
+terraform plan
+terraform apply
 ```
 
-### 2. Access Your Application
-
-```bash
-# Get the service IP
-kubectl get service xo-game-stress-test-service -n xo-game
-
-# Access the game
-curl http://<SERVICE_IP>:8080
-```
-
-### 3. Run Load Tests
+### 2. Run Load Tests
 
 ```bash
 # Simple stress test
@@ -90,38 +73,42 @@ curl http://<SERVICE_IP>:8080
 ./k8s/load-test.sh
 ```
 
+### 3. Monitor System
+
+```bash
+# Check status
+kubectl get pods -n xo-game
+kubectl get hpa -n xo-game
+
+# View logs
+kubectl logs -l app=xo-game,test=stress -n xo-game
+```
+
 ## 📁 Project Structure
 
 ```
 XO-Game/
-├── 🎮 Application
-│   ├── server.js              # Main application server
-│   ├── game/XOGame.js         # Game logic
-│   ├── models/Game.js         # Database models
-│   └── public/                # Frontend assets
-├── ☸️  Kubernetes
-│   ├── k8s/                   # Kubernetes manifests
-│   │   ├── fast-deploy.sh     # Quick deployment
-│   │   ├── load-test.sh       # Load testing
-│   │   └── *.yaml             # Resource definitions
-├── 🏗️  Infrastructure
-│   ├── terraform/             # Infrastructure as Code
-│   │   ├── main.tf            # Main configuration
-│   │   ├── variables.tf       # Variables
-│   │   └── outputs.tf         # Outputs
-├── 📊 Monitoring
-│   ├── monitoring/            # Monitoring setup
-│   │   ├── prometheus-config.yaml
-│   │   └── grafana-dashboard.json
-├── 🔄 CI/CD
-│   ├── .github/workflows/     # GitHub Actions
-│   │   └── deploy.yml         # Deployment pipeline
-├── 🧪 Testing
-│   ├── scripts/               # Test scripts
-│   │   └── advanced-load-test.sh
-│   └── tests/                 # Unit tests
-└── 📚 Documentation
-    └── docs/                  # Documentation
+├── k8s/                          # Kubernetes manifests
+│   ├── fast-deploy.sh           # Quick deployment script
+│   ├── load-test.sh             # Interactive load testing
+│   ├── simple-stress-test.sh    # Simple stress test
+│   ├── stress-test-deployment.yaml
+│   ├── postgres-cluster-deployment.yaml
+│   ├── hpa.yaml                 # Auto-scaling configuration
+│   └── shared-storage.yaml      # Shared storage setup
+├── terraform/                   # Infrastructure as Code
+│   ├── main.tf                  # Main Terraform configuration
+│   ├── variables.tf             # Terraform variables
+│   └── outputs.tf               # Terraform outputs
+├── monitoring/                  # Monitoring setup
+│   ├── prometheus-config.yaml   # Prometheus configuration
+│   └── grafana-dashboard.json   # Grafana dashboard
+├── scripts/                     # Utility scripts
+│   └── advanced-load-test.sh    # Comprehensive load testing
+├── .github/workflows/           # CI/CD pipeline
+│   └── deploy.yml               # GitHub Actions workflow
+└── docs/                        # Documentation
+    └── README.md                # This file
 ```
 
 ## 🔧 Configuration
@@ -138,6 +125,14 @@ XO-Game/
 | `CPU_TARGET` | `60%` | CPU target for auto-scaling |
 | `MEMORY_TARGET` | `70%` | Memory target for auto-scaling |
 
+### Scaling Configuration
+
+The system automatically scales based on:
+
+- **CPU usage** > 60%
+- **Memory usage** > 70%
+- **Custom metrics** (if configured)
+
 ## 📊 Monitoring
 
 ### Prometheus Metrics
@@ -153,6 +148,13 @@ XO-Game/
 - **Database Health**: Connection status, query metrics
 - **Auto-scaling**: HPA status, scaling events
 
+### Alerts
+
+- **High CPU/Memory usage**
+- **Pod failures**
+- **Database connection issues**
+- **High request latency**
+
 ## 🧪 Load Testing
 
 ### Test Scenarios
@@ -162,12 +164,11 @@ XO-Game/
 3. **Heavy Load**: 100 users, 10 minutes
 4. **Extreme Load**: 200 users, 15 minutes
 
-### Performance Targets
+### Load Testing Tools
 
-- **Response Time**: < 100ms (95th percentile)
-- **Throughput**: > 1000 requests/second
-- **Availability**: > 99.9% uptime
-- **Error Rate**: < 0.1%
+- **hey**: Professional load testing tool
+- **curl**: Simple HTTP testing
+- **Custom scripts**: Advanced scenarios
 
 ## 🔄 CI/CD Pipeline
 
@@ -180,9 +181,106 @@ XO-Game/
 5. **Performance Test**: Automated load testing
 6. **Notify**: Slack notifications
 
-## 🛠️ Development
+### Deployment Environments
 
-### Local Development
+- **Staging**: `develop` branch
+- **Production**: `main` branch
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+#### Pods Not Starting
+```bash
+# Check pod status
+kubectl get pods -n xo-game
+
+# Check pod logs
+kubectl describe pod <pod-name> -n xo-game
+kubectl logs <pod-name> -n xo-game
+```
+
+#### Database Connection Issues
+```bash
+# Check database pods
+kubectl get pods -n xo-game -l component=postgres-cluster
+
+# Check database logs
+kubectl logs -l component=postgres-cluster -n xo-game
+```
+
+#### Auto-scaling Not Working
+```bash
+# Check HPA status
+kubectl get hpa -n xo-game
+
+# Check HPA events
+kubectl describe hpa xo-game-hpa -n xo-game
+```
+
+#### Storage Issues
+```bash
+# Check PVC status
+kubectl get pvc -n xo-game
+
+# Check PV status
+kubectl get pv
+```
+
+### Performance Optimization
+
+1. **Resource Limits**: Adjust CPU/memory limits
+2. **Replica Count**: Optimize initial replica count
+3. **HPA Thresholds**: Fine-tune scaling thresholds
+4. **Database Tuning**: Optimize PostgreSQL configuration
+
+## 🔒 Security
+
+### Best Practices
+
+- **Non-root containers**: All containers run as non-root
+- **Resource limits**: CPU and memory limits set
+- **Network policies**: Restrict network access
+- **Secrets management**: Use Kubernetes secrets
+- **Image scanning**: Regular vulnerability scanning
+
+### Security Scanning
+
+- **Trivy**: Container vulnerability scanning
+- **CodeQL**: Code security analysis
+- **Dependabot**: Dependency updates
+
+## 📈 Performance Metrics
+
+### Key Performance Indicators
+
+- **Response Time**: < 100ms (95th percentile)
+- **Throughput**: > 1000 requests/second
+- **Availability**: > 99.9% uptime
+- **Error Rate**: < 0.1%
+
+### Monitoring Queries
+
+```promql
+# Request rate
+rate(http_requests_total[5m])
+
+# Response time
+histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+
+# Error rate
+rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])
+```
+
+## 🤝 Contributing
+
+1. **Fork the repository**
+2. **Create a feature branch**
+3. **Make your changes**
+4. **Run tests and linting**
+5. **Submit a pull request**
+
+### Development Setup
 
 ```bash
 # Install dependencies
@@ -194,84 +292,21 @@ npm test
 # Run linting
 npm run lint
 
-# Start development server
-npm run dev
-
 # Build Docker image
 docker build -t xo-game:latest .
 ```
 
-### Contributing
-
-1. **Fork the repository**
-2. **Create a feature branch**
-3. **Make your changes**
-4. **Run tests and linting**
-5. **Submit a pull request**
-
-## 🔒 Security
-
-### Security Features
-
-- **Non-root containers**: All containers run as non-root
-- **Resource limits**: CPU and memory limits set
-- **Network policies**: Restrict network access
-- **Secrets management**: Use Kubernetes secrets
-- **Image scanning**: Regular vulnerability scanning
-
-## 📈 Performance
-
-### Key Performance Indicators
-
-- **Response Time**: < 100ms (95th percentile)
-- **Throughput**: > 1000 requests/second
-- **Availability**: > 99.9% uptime
-- **Error Rate**: < 0.1%
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-#### Pods Not Starting
-```bash
-kubectl get pods -n xo-game
-kubectl describe pod <pod-name> -n xo-game
-kubectl logs <pod-name> -n xo-game
-```
-
-#### Database Connection Issues
-```bash
-kubectl get pods -n xo-game -l component=postgres-cluster
-kubectl logs -l component=postgres-cluster -n xo-game
-```
-
-#### Auto-scaling Not Working
-```bash
-kubectl get hpa -n xo-game
-kubectl describe hpa xo-game-hpa -n xo-game
-```
-
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/xo-game/issues)
-- **Documentation**: [Full Documentation](docs/README.md)
+- **Issues**: GitHub Issues
+- **Documentation**: This README
 - **Monitoring**: Grafana dashboards
 - **Logs**: Kubernetes logs
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Kubernetes** for orchestration
-- **Prometheus** for monitoring
-- **Grafana** for visualization
-- **Terraform** for infrastructure as code
-- **GitHub Actions** for CI/CD
+MIT License - see LICENSE file for details.
 
 ---
 
 **Built with ❤️ for high-performance, scalable applications**
-
-⭐ **Star this repository if you find it helpful!**

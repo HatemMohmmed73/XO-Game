@@ -24,7 +24,7 @@ services:
   # Node.js Application
   app:
     build: .
-    container_name: xo-game-app
+    container_name: xo-game
     ports:
       - "4000:8080"
     environment:
